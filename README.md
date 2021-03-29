@@ -1,4 +1,4 @@
-# Thaisense
+# 🇹🇭 Thaisense
 
 > Add CJK (and Thai) language support to Typesense
 
