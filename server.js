@@ -7,14 +7,17 @@ const wordcut = require("wordcut");
 
 wordcut.init();
 
+const port = process.env.npm_config_port || 3000
+const typesenseHost = process.env.npm_config_host || "localhost"
+const typesensePort = process.env.npm_config_typesenseport || 8108
+const key = "xyz"
+
 function removeSpaces(str) {
 	if (str)
 		return str.replace(/[ ](.+?)/gm, '$1')
 	else
 		return str
 }
-
-const segmentedFields = ['_title']
 
 function processHit(hit) {
 	for (const [key, value] of Object.entries(hit.document)) {
@@ -44,7 +47,6 @@ function processHit(hit) {
 }
 
 const app = express()
-const port = 3000
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -62,7 +64,7 @@ app.post('/multi_search', (req, res) => {
 	req.body.searches[0].q = req.body.searches[0].q + " " + wordcut.cut(req.body.searches[0].q, " ")
 	// there's a bug with typesense? year<=x returns everything
 	req.body.searches[0].filter_by = req.body.searches[0].filter_by.replace(/((?: |^)year:<)=/gm, '$1')
-	fetch('http://localhost:8108/multi_search?x-typesense-api-key=xyz', {
+	fetch(`http://${typesenseHost}:${typesensePort}/multi_search?x-typesense-api-key=${key}`, {
 	  method: 'post',
 	  headers: {
 	    'Accept': 'application/json, text/plain, */*',
@@ -88,5 +90,7 @@ app.post('/multi_search', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Thaisense listening at ${port}`)
+  console.log(`Relaying requests to http://${typesenseHost}:${typesensePort}`)
+  console.log(`Read-only key: ${key}`)
 })
