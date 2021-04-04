@@ -10,7 +10,7 @@ wordcut.init();
 const port = process.env.npm_config_port || 3000
 const typesenseHost = process.env.npm_config_host || "localhost"
 const typesensePort = process.env.npm_config_typesenseport || 8108
-const key = "xyz"
+const key = process.env.npm_config_key || "xyz"
 
 function removeSpaces(str) {
 	if (str)
