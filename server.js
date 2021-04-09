@@ -7,10 +7,10 @@ const wordcut = require("wordcut");
 
 wordcut.init();
 
-const port = process.env.npm_config_port || 3000
-const typesenseHost = process.env.npm_config_host || "localhost"
-const typesensePort = process.env.npm_config_typesenseport || 8108
-const key = process.env.npm_config_key || "xyz"
+const port = process.env.PORT || process.env.npm_config_port || 3000
+const typesenseHost = process.env.TYPESENSE_HOST || process.env.npm_config_host || "localhost"
+const typesensePort = process.env.TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
+const key = process.env.TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
 function removeSpaces(str) {
 	if (str)
@@ -90,8 +90,8 @@ app.post('/multi_search', (req, res) => {
 		// .then(newres => res.send(newres))
 })
 
-app.listen(process.env.PORT || port, () => {
-  console.log(`Thaisense listening at ${process.env.PORT || port}`)
+app.listen(port, () => {
+  console.log(`Thaisense listening at ${port}`)
   console.log(`Relaying requests to http://${typesenseHost}:${typesensePort}`)
   console.log(`Read-only key: ${key}`)
 })
