@@ -53,6 +53,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*'}));
 
 app.get('/', (req, res) => {
+	console.log("Received a request.")
   res.send('I can hear you!\n')
 })
 
@@ -89,8 +90,8 @@ app.post('/multi_search', (req, res) => {
 		// .then(newres => res.send(newres))
 })
 
-app.listen(port, () => {
-  console.log(`Thaisense listening at ${port}`)
+app.listen(process.env.PORT || port, () => {
+  console.log(`Thaisense listening at ${process.env.PORT || port}`)
   console.log(`Relaying requests to http://${typesenseHost}:${typesensePort}`)
   console.log(`Read-only key: ${key}`)
 })
