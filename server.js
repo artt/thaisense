@@ -53,7 +53,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*'}));
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('I can hear you!\n')
 })
 
 // TODO: split this into 2 searches, one with segmentation for "_x" fields,

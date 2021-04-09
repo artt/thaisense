@@ -1,1 +1,1 @@
-web: npm run --key=${KEY}
+web: npm run start --key=${KEY}
