@@ -1,3 +1,6 @@
+const xx = require("../../thaisense-config")
+console.log(xx)
+
 console.log("Hello!")
 
 const utils = require("./utils")
