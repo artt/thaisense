@@ -1,4 +1,4 @@
-const xx = require("../../thaisense-config")
+const xx = require("../../thaisense-config.js")
 console.log(xx)
 
 console.log("Hello!")
