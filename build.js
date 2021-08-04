@@ -6,7 +6,7 @@ console.log("Hello!")
 const utils = require("./utils")
 const fs = require("fs").promises
 
-export async function main() {
+exports.test = async function main() {
   const dirEnts = await fs.readdir('.', { withFileTypes: true })
   console.log(dirEnts)  
 }
