@@ -13,7 +13,8 @@ wordcut.init();
 // ----------
 
 const reporter = {
-  panic: (...x) => console.error(...x),
+  error: (...x) => console.error(...x),
+  panic: (...x) => console.warn(...x),
   warn: (...x) => console.warn(...x),
   verbose: (...x) => console.debug(...x),
 }
