@@ -99,22 +99,25 @@ async function indexContentInTypesense({
     } else {
       typesenseDocument[attributeName] = typeCastValue(fieldDefinition, attributeValue);
     }
+
+
+
+
+    // for thaisense
+    if (fieldsToSegment.includes(attributeName)) {
+      // console.log(`${attributeName} needs to be segmented... will segment`)
+      if (fieldDefinition.type.includes("[]")) {
+        typesenseDocument["_" + attributeName] = typesenseDocument["_" + attributeName] || []
+        typesenseDocument["_" + attributeName].push(typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " ")))
+      } else {
+        typesenseDocument["_" + attributeName] = typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " "));
+      }
+      // console.log('Done segmenting: ', typesenseDocument["_" + attributeName])  
+    }
+    // ------------------
+
   })
 
-
-
-  // for thaisense
-  if (fieldsToSegment.includes(attributeName)) {
-    // console.log(`${attributeName} needs to be segmented... will segment`)
-    if (fieldDefinition.type.includes("[]")) {
-      typesenseDocument["_" + attributeName] = typesenseDocument["_" + attributeName] || []
-      typesenseDocument["_" + attributeName].push(typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " ")))
-    } else {
-      typesenseDocument["_" + attributeName] = typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " "));
-    }
-    // console.log('Done segmenting: ', typesenseDocument["_" + attributeName])  
-  }
-  // ------------------
 
 
 
