@@ -3,14 +3,16 @@ const bodyParser = require("body-parser");
 const cors = require('cors')
 const fetch = require("node-fetch");
 
+require("dotenv").config()
+
 const wordcut = require("wordcut");
 
 wordcut.init();
 
 const port = process.env.PORT || process.env.npm_config_port || 3000
-const typesenseHost = process.env.TYPESENSE_HOST || process.env.npm_config_host || "localhost"
-const typesensePort = process.env.TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
-const key = process.env.TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
+const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_host || "localhost"
+const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
+const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
 function removeSpaces(str) {
 	if (str)
