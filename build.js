@@ -17,6 +17,7 @@ const reporter = {
   panic: (...x) => console.warn(...x),
   warn: (...x) => console.warn(...x),
   verbose: (...x) => console.debug(...x),
+  info: (...x) => console.log(...x),
 }
 
 // exports.test = async function main() {
