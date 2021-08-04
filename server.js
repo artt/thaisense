@@ -43,7 +43,7 @@ function processHit(hit) {
 		}
 		return highlight
 	})
-	return hit
+	return {_highlightResult: hit._highlightResult, _snippetResult: hit._snippetResult}
 }
 
 const app = express()
