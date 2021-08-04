@@ -1,4 +1,6 @@
-const utils = require("./utils")
+//TODO: add typesense as dependency
+
+utils = require("./utils")
 const fs = require("fs").promises
 
 const cheerio = require("cheerio")
@@ -10,6 +12,12 @@ const wordcut = require("wordcut");
 wordcut.init();
 // ----------
 
+const reporter = {
+  panic: (...x) => console.error(...x),
+  warn: (...x) => console.warn(...x),
+  verbose: (...x) => console.debug(...x),
+}
+
 
 
 exports.test = async function main() {
@@ -19,122 +27,126 @@ exports.test = async function main() {
 
   console.log(TypesenseClient)
   console.log(wordcut.cut("กากา"))
+
+  reporter.panic('reporter panic', 3)
+  reporter.warn('reporter warn', 2)
+  reporter.verbose('reporter warn', 1)
 }
 
 
 
-// function typeCastValue(fieldDefinition, attributeValue) {
-//   if (fieldDefinition.type.includes("int")) {
-//     return parseInt(attributeValue);tils
-//   }
-//   if (fieldDefinition.type.includes("float")) {
-//     return parseFloat(attributeValue);
-//   }
-//   if (fieldDefinition.type.includes("bool")) {
-//     if (attributeValue.toLowerCase() === "false") {
-//       return false;
-//     }
-//     if (attributeValue === "0") {
-//       return false;
-//     }
-//     return attributeValue.trim() !== "";
-//   }
-//   return attributeValue;
-// }
+function typeCastValue(fieldDefinition, attributeValue) {
+  if (fieldDefinition.type.includes("int")) {
+    return parseInt(attributeValue);tils
+  }
+  if (fieldDefinition.type.includes("float")) {
+    return parseFloat(attributeValue);
+  }
+  if (fieldDefinition.type.includes("bool")) {
+    if (attributeValue.toLowerCase() === "false") {
+      return false;
+    }
+    if (attributeValue === "0") {
+      return false;
+    }
+    return attributeValue.trim() !== "";
+  }
+  return attributeValue;
+}
 
-// async function indexContentInTypesense({
-//   fileContents,
-//   wwwPath,
-//   typesense,
-//   newCollectionSchema,
-//   reporter,
+async function indexContentInTypesense({
+  fileContents,
+  wwwPath,
+  typesense,
+  newCollectionSchema,
+  // reporter,
 
-//   // for thaisense
-//   fieldsToSegment,
-//   // ------------
+  // for thaisense
+  fieldsToSegment,
+  // ------------
 
-// }) {
-//   const $ = cheerio.load(fileContents)
+}) {
+  const $ = cheerio.load(fileContents)
 
-//   let typesenseDocument = {}
-//   $(`[${TYPESENSE_ATTRIBUTE_NAME}]`).each((index, element) => {
-//     const attributeName = $(element).attr(TYPESENSE_ATTRIBUTE_NAME)
+  let typesenseDocument = {}
+  $(`[${TYPESENSE_ATTRIBUTE_NAME}]`).each((index, element) => {
+    const attributeName = $(element).attr(TYPESENSE_ATTRIBUTE_NAME)
 
-//     // for thaisense
-//     const tmp = $(element).text()
-//     // const attributeValue = tmp
-//     // const attributeValue = fieldsToSegment.includes(attributeName) ? wordcut.cut(tmp, ' ') : tmp
-//     const attributeValue = attributeName[0] === "_" ? wordcut.cut(tmp, ' ') : tmp
-//     // xxx const attributeValue = $(element).text()
-//     // ----------------
+    // for thaisense
+    const tmp = $(element).text()
+    // const attributeValue = tmp
+    // const attributeValue = fieldsToSegment.includes(attributeName) ? wordcut.cut(tmp, ' ') : tmp
+    const attributeValue = attributeName[0] === "_" ? wordcut.cut(tmp, ' ') : tmp
+    // xxx const attributeValue = $(element).text()
+    // ----------------
     
     
-//     const fieldDefinition = newCollectionSchema.fields.find(
-//       f => f.name === attributeName
-//     )
+    const fieldDefinition = newCollectionSchema.fields.find(
+      f => f.name === attributeName
+    )
 
-//     if (!fieldDefinition) {
-//       const errorMsg = `[Typesense] Field "${attributeName}" is not defined in the collection schema`
-//       reporter.panic(errorMsg)
-//       return Promise.error(errorMsg)
-//     }
+    if (!fieldDefinition) {
+      const errorMsg = `[Typesense] Field "${attributeName}" is not defined in the collection schema`
+      reporter.panic(errorMsg)
+      return Promise.error(errorMsg)
+    }
 
-//     if (fieldDefinition.type.includes("[]")) {
-//       typesenseDocument[attributeName] = typesenseDocument[attributeName] || []
-//       typesenseDocument[attributeName].push(typeCastValue(fieldDefinition, attributeValue))
-//     } else {
-//       typesenseDocument[attributeName] = typeCastValue(fieldDefinition, attributeValue);
-//     }
-//   })
-
-
-
-//   // for thaisense
-//   if (fieldsToSegment.includes(attributeName)) {
-//     // console.log(`${attributeName} needs to be segmented... will segment`)
-//     if (fieldDefinition.type.includes("[]")) {
-//       typesenseDocument["_" + attributeName] = typesenseDocument["_" + attributeName] || []
-//       typesenseDocument["_" + attributeName].push(typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " ")))
-//     } else {
-//       typesenseDocument["_" + attributeName] = typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " "));
-//     }
-//     // console.log('Done segmenting: ', typesenseDocument["_" + attributeName])  
-//   }
-//   // ------------------
+    if (fieldDefinition.type.includes("[]")) {
+      typesenseDocument[attributeName] = typesenseDocument[attributeName] || []
+      typesenseDocument[attributeName].push(typeCastValue(fieldDefinition, attributeValue))
+    } else {
+      typesenseDocument[attributeName] = typeCastValue(fieldDefinition, attributeValue);
+    }
+  })
 
 
 
-//   if (utils.isObjectEmpty(typesenseDocument)) {
-//     reporter.warn(
-//       `[Typesense] No HTMLelements had the ${TYPESENSE_ATTRIBUTE_NAME} attribute, skipping page`
-//     )
-//     return Promise.resolve()
-//   }
+  // for thaisense
+  if (fieldsToSegment.includes(attributeName)) {
+    // console.log(`${attributeName} needs to be segmented... will segment`)
+    if (fieldDefinition.type.includes("[]")) {
+      typesenseDocument["_" + attributeName] = typesenseDocument["_" + attributeName] || []
+      typesenseDocument["_" + attributeName].push(typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " ")))
+    } else {
+      typesenseDocument["_" + attributeName] = typeCastValue(fieldDefinition, wordcut.cut(attributeValue, " "));
+    }
+    // console.log('Done segmenting: ', typesenseDocument["_" + attributeName])  
+  }
+  // ------------------
 
-//   typesenseDocument["page_path"] = wwwPath
-//   typesenseDocument["page_priority_score"] =
-//     typesenseDocument["page_priority_score"] || 10
 
-//   try {
-//     reporter.verbose(
-//       `[Typesense] Creating document: ${JSON.stringify(
-//         typesenseDocument,
-//         null,
-//         2
-//       )}`
-//     )
 
-//     await typesense
-//       .collections(newCollectionSchema.name)
-//       .documents()
-//       .create(typesenseDocument)
+  if (utils.isObjectEmpty(typesenseDocument)) {
+    reporter.warn(
+      `[Typesense] No HTMLelements had the ${TYPESENSE_ATTRIBUTE_NAME} attribute, skipping page`
+    )
+    return Promise.resolve()
+  }
 
-//     reporter.verbose("[Typesense] ✅")
-//     return Promise.resolve()
-//   } catch (error) {
-//     reporter.panic(`[Typesense] Could not create document: ${error}`)
-//   }
-// }
+  typesenseDocument["page_path"] = wwwPath
+  typesenseDocument["page_priority_score"] =
+    typesenseDocument["page_priority_score"] || 10
+
+  try {
+    reporter.verbose(
+      `[Typesense] Creating document: ${JSON.stringify(
+        typesenseDocument,
+        null,
+        2
+      )}`
+    )
+
+    await typesense
+      .collections(newCollectionSchema.name)
+      .documents()
+      .create(typesenseDocument)
+
+    reporter.verbose("[Typesense] ✅")
+    return Promise.resolve()
+  } catch (error) {
+    reporter.panic(`[Typesense] Could not create document: ${error}`)
+  }
+}
 
 // exports.onPostBuild = async (
 //   { reporter },
