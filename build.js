@@ -18,20 +18,18 @@ const reporter = {
   verbose: (...x) => console.debug(...x),
 }
 
+// exports.test = async function main() {
 
+//   const dirEnts = await fs.readdir('.', { withFileTypes: true })
+//   console.log(dirEnts)  
 
-exports.test = async function main() {
+//   console.log(TypesenseClient)
+//   console.log(wordcut.cut("กากา"))
 
-  const dirEnts = await fs.readdir('.', { withFileTypes: true })
-  console.log(dirEnts)  
-
-  console.log(TypesenseClient)
-  console.log(wordcut.cut("กากา"))
-
-  reporter.panic('reporter panic', 3)
-  reporter.warn('reporter warn', 2)
-  reporter.verbose('reporter warn', 1)
-}
+//   reporter.panic('reporter panic', 3)
+//   reporter.warn('reporter warn', 2)
+//   reporter.verbose('reporter warn', 1)
+// }
 
 
 
@@ -148,114 +146,114 @@ async function indexContentInTypesense({
   }
 }
 
-// exports.onPostBuild = async (
-//   { reporter },
-//   {
-//     server,
-//     collectionSchema,
-//     publicDir,
-//     rootDir,
-//     exclude,
-//     fieldsToSegment=[],
-//     generateNewCollectionName = utils.generateNewCollectionName,
-//   }
-// ) => {
-//   reporter.verbose("[Typesense] Getting list of HTML files")
-//   // backward compatibility
-//   rootDir = rootDir || publicDir
-//   const htmlFiles = await utils.getHTMLFilesRecursively(rootDir, rootDir, exclude)
+exports.goIndex = async (
+  // { reporter },
+  {
+    server,
+    collectionSchema,
+    publicDir,
+    rootDir,
+    exclude,
+    fieldsToSegment=[],
+    generateNewCollectionName = utils.generateNewCollectionName,
+  }
+) => {
+  reporter.verbose("[Typesense] Getting list of HTML files")
+  // backward compatibility
+  rootDir = rootDir || publicDir
+  const htmlFiles = await utils.getHTMLFilesRecursively(rootDir, rootDir, exclude)
 
-//   const typesense = new TypesenseClient(server)
-//   const newCollectionName = generateNewCollectionName(collectionSchema)
-//   const newCollectionSchema = { ...collectionSchema }
-
-
-//   // for thaisense
-
-//   for (let i = 0; i < fieldsToSegment.length; i ++) {
-//     const obj = newCollectionSchema.fields.filter(f => f.name === fieldsToSegment[i])[0]
-//     let newObj = {...obj}
-//     newObj.name = "_" + newObj.name
-//     newCollectionSchema.fields.push(newObj)
-//   }
-
-//   // ---------------------
+  const typesense = new TypesenseClient(server)
+  const newCollectionName = generateNewCollectionName(collectionSchema)
+  const newCollectionSchema = { ...collectionSchema }
 
 
+  // for thaisense
+
+  for (let i = 0; i < fieldsToSegment.length; i ++) {
+    const obj = newCollectionSchema.fields.filter(f => f.name === fieldsToSegment[i])[0]
+    let newObj = {...obj}
+    newObj.name = "_" + newObj.name
+    newCollectionSchema.fields.push(newObj)
+  }
+
+  // ---------------------
 
 
 
 
-//   newCollectionSchema.name = newCollectionName
 
-//   try {
-//     reporter.verbose(`[Typesense] Creating collection ${newCollectionName}`)
-//     await typesense.collections().create(newCollectionSchema)
-//   } catch (error) {
-//     reporter.panic(
-//       `[Typesense] Could not create collection ${newCollectionName}: ${error}`
-//     )
-//   }
 
-//   for (const file of htmlFiles) {
-//     const wwwPath = file.replace(rootDir, "").replace(/index\.html$/, "")
-//     reporter.verbose(`[Typesense] Indexing ${wwwPath}`)
-//     const fileContents = (await fs.readFile(file)).toString()
-//     await indexContentInTypesense({
-//       fileContents,
-//       wwwPath,
-//       typesense,
-//       newCollectionSchema,
-//       reporter,
+  newCollectionSchema.name = newCollectionName
+
+  try {
+    reporter.verbose(`[Typesense] Creating collection ${newCollectionName}`)
+    await typesense.collections().create(newCollectionSchema)
+  } catch (error) {
+    reporter.panic(
+      `[Typesense] Could not create collection ${newCollectionName}: ${error}`
+    )
+  }
+
+  for (const file of htmlFiles) {
+    const wwwPath = file.replace(rootDir, "").replace(/index\.html$/, "")
+    reporter.verbose(`[Typesense] Indexing ${wwwPath}`)
+    const fileContents = (await fs.readFile(file)).toString()
+    await indexContentInTypesense({
+      fileContents,
+      wwwPath,
+      typesense,
+      newCollectionSchema,
+      // reporter,
       
-//       // for thaisense
-//       fieldsToSegment,
-//       // ------------------
+      // for thaisense
+      fieldsToSegment,
+      // ------------------
 
       
-//     })
-//   }
+    })
+  }
 
-//   let oldCollectionName
-//   try {
-//     oldCollectionName = (
-//       await typesense.aliases(collectionSchema.name).retrieve()
-//     )["collection_name"]
-//     reporter.verbose(`[Typesense] Old collection name was ${oldCollectionName}`)
-//   } catch (error) {
-//     reporter.verbose(`[Typesense] No old collection found, proceeding`)
-//   }
+  let oldCollectionName
+  try {
+    oldCollectionName = (
+      await typesense.aliases(collectionSchema.name).retrieve()
+    )["collection_name"]
+    reporter.verbose(`[Typesense] Old collection name was ${oldCollectionName}`)
+  } catch (error) {
+    reporter.verbose(`[Typesense] No old collection found, proceeding`)
+  }
 
-//   try {
-//     reporter.verbose(
-//       `[Typesense] Upserting alias ${collectionSchema.name} -> ${newCollectionName}`
-//     )
-//     await typesense
-//       .aliases()
-//       .upsert(collectionSchema.name, { collection_name: newCollectionName })
+  try {
+    reporter.verbose(
+      `[Typesense] Upserting alias ${collectionSchema.name} -> ${newCollectionName}`
+    )
+    await typesense
+      .aliases()
+      .upsert(collectionSchema.name, { collection_name: newCollectionName })
 
-//     reporter.info(
-//       `[Typesense] Content indexed to "${collectionSchema.name}" [${newCollectionName}]`
-//     )
-//   } catch (error) {
-//     reporter.error(
-//       `[Typesense] Could not upsert alias ${collectionSchema.name} -> ${newCollectionName}: ${error}`
-//     )
-//   }
+    reporter.info(
+      `[Typesense] Content indexed to "${collectionSchema.name}" [${newCollectionName}]`
+    )
+  } catch (error) {
+    reporter.error(
+      `[Typesense] Could not upsert alias ${collectionSchema.name} -> ${newCollectionName}: ${error}`
+    )
+  }
 
-//   try {
-//     if (oldCollectionName) {
-//       reporter.verbose(
-//         `[Typesense] Deleting old collection ${oldCollectionName}`
-//       )
-//       await typesense.collections(oldCollectionName).delete()
-//     }
-//   } catch (error) {
-//     reporter.error(
-//       `[Typesense] Could not delete old collection ${oldCollectionName}: ${error}`
-//     )
-//   }
-// }
+  try {
+    if (oldCollectionName) {
+      reporter.verbose(
+        `[Typesense] Deleting old collection ${oldCollectionName}`
+      )
+      await typesense.collections(oldCollectionName).delete()
+    }
+  } catch (error) {
+    reporter.error(
+      `[Typesense] Could not delete old collection ${oldCollectionName}: ${error}`
+    )
+  }
+}
 
 // exports.onPreInit = ({ reporter }) =>
 //   reporter.verbose("Loaded gatsby-plugin-typesense")
