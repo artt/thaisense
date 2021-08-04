@@ -1,5 +1,5 @@
-const xx = require("../../thaisense-config.js")
-console.log(xx)
+// const xx = require("../../thaisense-config.js")
+// console.log(xx)
 
 console.log("Hello!")
 
@@ -11,11 +11,11 @@ exports.test = async function main() {
   console.log(dirEnts)  
 }
 
-(async () => {
-  await main();
-})().catch(e => {
-  // Deal with the fact the chain failed
-});
+// (async () => {
+//   await main();
+// })().catch(e => {
+//   // Deal with the fact the chain failed
+// });
 
 // rootDir = rootDir || publicDir
 // const htmlFiles = await utils.getHTMLFilesRecursively(rootDir, rootDir, exclude)
