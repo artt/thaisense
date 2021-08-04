@@ -71,7 +71,7 @@ async function indexContentInTypesense({
   let typesenseDocument = {}
   console.log($(`[${TYPESENSE_ATTRIBUTE_NAME}]`))
   $(`[${TYPESENSE_ATTRIBUTE_NAME}]`).each((index, element) => {
-    console.log('xxxx'), element
+    console.log('xxxx', element)
     const attributeName = $(element).attr(TYPESENSE_ATTRIBUTE_NAME)
 
     // for thaisense
