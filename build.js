@@ -20,20 +20,6 @@ const reporter = {
   info: (...x) => console.log(...x),
 }
 
-// exports.test = async function main() {
-
-//   const dirEnts = await fs.readdir('.', { withFileTypes: true })
-//   console.log(dirEnts)  
-
-//   console.log(TypesenseClient)
-//   console.log(wordcut.cut("กากา"))
-
-//   reporter.panic('reporter panic', 3)
-//   reporter.warn('reporter warn', 2)
-//   reporter.verbose('reporter warn', 1)
-// }
-
-
 
 function typeCastValue(fieldDefinition, attributeValue) {
   if (fieldDefinition.type.includes("int")) {
