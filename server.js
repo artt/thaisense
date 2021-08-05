@@ -62,6 +62,8 @@ app.get('/', (req, res) => {
 // TODO: split this into 2 searches, one with segmentation for "_x" fields,
 // another without segmentation for regular fields.
 
+// TODO: implement sorting ourselves...
+
 app.post('/multi_search', (req, res) => {
 	// console.log("reqest > ", req.body);
 	req.body.searches[0].q = req.body.searches[0].q + " " + wordcut.cut(req.body.searches[0].q, " ")
@@ -78,7 +80,7 @@ app.post('/multi_search', (req, res) => {
 	  // .then(res => console.log(res));
 	}).then(newres => newres.json())
 		.then(newres => {
-			// console.log("return > ", newres)
+			console.log("return > ", JSON.stringify(newres.results[0].hits.sort((a, b) => b.text_match - a.text_match).slice(0, 2).map(doc => doc.highlights.map(h => h.matched_tokens))))
 			newres.results.map(result => {
 				if (result.code === 400) {
 					res.statusMessage = result.error
