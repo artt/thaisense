@@ -10,9 +10,13 @@ const wordcut = require("wordcut");
 wordcut.init();
 
 const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || 3000
-const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_host || "localhost"
+const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
 const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
+const typesensePath = process.env.GATSBY_TYPESENSE_PATH || process.env.npm_config_typesensepath || "/"
+const typesenseProtocol = typesensePort === "443" ? "https" : "http",
 const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
+
+const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisensepath || "/"
 
 function removeSpaces(str) {
 	if (str)
@@ -54,7 +58,7 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*'}));
 
-app.get('/', (req, res) => {
+app.get(`${thaisensePath === "/" ? "" : thaisensePath}/`, (req, res) => {
 	console.log("Received a request.")
   res.send('I can hear you!\n')
 })
@@ -64,12 +68,13 @@ app.get('/', (req, res) => {
 
 // TODO: implement sorting ourselves...
 
-app.post('/multi_search', (req, res) => {
-	console.log("reqest > ", req.body);
+app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res) => {
+	// console.log("reqest > ", req.body);
 	req.body.searches[0].q = req.body.searches[0].q + " " + wordcut.cut(req.body.searches[0].q, " ")
 	// there's a bug with typesense? year<=x returns everything
 	req.body.searches[0].filter_by = req.body.searches[0].filter_by.replace(/((?: |^)year:<)=/gm, '$1')
-	fetch(`http://${typesenseHost}:${typesensePort}/multi_search?x-typesense-api-key=${key}`, {
+	console.log("reqest > ", req.body);
+	fetch(`${typesenseProtocol}://${typesenseHost}:${typesensePort}${typesensePath === "/" ? "" : typesensePath}/multi_search?x-typesense-api-key=${key}`, {
 	  method: 'post',
 	  headers: {
 	    'Accept': 'application/json, text/plain, */*',
@@ -80,8 +85,8 @@ app.post('/multi_search', (req, res) => {
 	  // .then(res => console.log(res));
 	}).then(newres => newres.json())
 		.then(newres => {
-			console.log("return > ", newres)
-			// console.log("return > ", JSON.stringify(newres.results[0].hits.sort((a, b) => b.text_match - a.text_match).slice(0, 2)))
+			// console.log("return > ", newres)
+			console.log("return > ", newres.results[0].hits)
 			newres.results.map(result => {
 				if (result.code === 400) {
 					res.statusMessage = result.error
@@ -97,6 +102,6 @@ app.post('/multi_search', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Thaisense listening at ${port}`)
-  console.log(`Relaying requests to http://${typesenseHost}:${typesensePort}`)
+  console.log(`Relaying requests to ${typesenseProtocol}://${typesenseHost}:${typesensePort}${typesensePath === "/" ? "" : typesensePath}`)
   console.log(`Read-only key: ${key}`)
 })
