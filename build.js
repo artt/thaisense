@@ -210,8 +210,8 @@ exports.goIndex = async (
     reporter.verbose(`---------`)
 
     // const wwwPath = file.replace(rootDir, "").replace(/index\.html$/, "")
-    // const wwwPath = fwdFile.replace(fwdRootDir, "").replace(/index\.html$/, "")
-    const wwwPath = file.slice(rootDir.length).replace(/index\.html$/, "")
+    const wwwPath = fwdFile.replace(fwdRootDir, "").replace(/index\.html$/, "")
+    // const wwwPath = file.slice(rootDir.length).replace(/index\.html$/, "")
     reporter.verbose(`[Typesense] Indexing ${wwwPath}`)
     const fileContents = (await fs.readFile(file)).toString()
     await indexContentInTypesense({
