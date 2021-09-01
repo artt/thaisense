@@ -54,7 +54,11 @@ function processHit(hit) {
 
 const app = express()
 
-app.use(cors())
+const corsOptions = {
+	origin: "*",
+	optionsSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*'}));
 
