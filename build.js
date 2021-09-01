@@ -189,6 +189,9 @@ exports.goIndex = async (
   for (const file of htmlFiles) {
     const wwwPath = file.replace(rootDir, "").replace(/index\.html$/, "")
     reporter.verbose(`[Typesense] Indexing ${wwwPath}`)
+    // BOT debug
+    reporter.verbose(`rootDir is ${rootDir}`)
+    reporter.verbose(`file is ${file}`)
     const fileContents = (await fs.readFile(file)).toString()
     await indexContentInTypesense({
       fileContents,
