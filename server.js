@@ -13,7 +13,7 @@ const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.en
 const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
 const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
 const typesensePath = process.env.GATSBY_TYPESENSE_PATH || process.env.npm_config_typesensepath || "/"
-const typesenseProtocol = typesensePort === "443" ? "https" : "http",
+const typesenseProtocol = typesensePort === "443" ? "https" : "http"
 const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
 const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisensepath || "/"
