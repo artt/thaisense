@@ -18,16 +18,13 @@ if (!process.env.GATSBY_TYPESENSE_HOST && !process.env.GATSBY_TYPESENSE_PORT && 
 const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
 // for this process only
-const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || "3000"
-const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisense_path || "/"
+// const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || "3000"
+// const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisense_path || "/"
 const thaisenseNodeNum = process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
 
-
-
-// const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
-// const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
-// const typesensePath = process.env.GATSBY_TYPESENSE_PATH || process.env.npm_config_typesensepath || "/"
-// const typesenseProtocol = typesensePort === "443" ? "https" : "http"
+let thaisenseNodes = misc.getNodes(process.env.GATSBY_THAISENSE_HOST, process.env.GATSBY_THAISENSE_PORT, process.env.GATSBY_THAISENSE_PATH)
+const port = process.env.PORT || thaisenseNodes[thaisenseNodeNum].port
+const thaisensePath = thaisenseNodes[thaisenseNodeNum].path
 
 function removeSpaces(str) {
 	if (str)
