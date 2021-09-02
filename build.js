@@ -117,13 +117,13 @@ async function indexContentInTypesense({
     typesenseDocument["page_priority_score"] || 10
 
   try {
-    reporter.verbose(
-      `[Typesense] Creating document: ${JSON.stringify(
-        typesenseDocument,
-        null,
-        2
-      )}`
-    )
+    // reporter.verbose(
+    //   `[Typesense] Creating document: ${JSON.stringify(
+    //     typesenseDocument,
+    //     null,
+    //     2
+    //   )}`
+    // )
 
     await typesense
       .collections(newCollectionSchema.name)
