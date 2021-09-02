@@ -11,13 +11,18 @@ const wordcut = require("wordcut");
 wordcut.init();
 
 // typesense nodes
-const typesenseNodes = misc.getNodes(process.env.GATSBY_TYPESENSE_HOST, process.env.GATSBY_TYPESENSE_PORT, process.env.GATSBY_TYPESENSE_PATH)
+let typesenseNodes = misc.getNodes(process.env.GATSBY_TYPESENSE_HOST, process.env.GATSBY_TYPESENSE_PORT, process.env.GATSBY_TYPESENSE_PATH)
+if (!process.env.GATSBY_TYPESENSE_HOST && !process.env.GATSBY_TYPESENSE_PORT && !process.env.GATSBY_TYPESENSE_PATH) {
+	typesenseNodes[0].port = "8108"
+}
 const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
 // for this process only
 const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || "3000"
 const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisense_path || "/"
-const thaisenseNodeNum = process.argv[2] || process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
+const thaisenseNodeNum = process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
+
+
 
 // const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
 // const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
