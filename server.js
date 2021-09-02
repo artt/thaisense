@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require("body-parser");
 const cors = require('cors')
 const fetch = require("node-fetch");
+const misc = require('./misc')
 
 require("dotenv").config()
 
@@ -9,14 +10,19 @@ const wordcut = require("wordcut");
 
 wordcut.init();
 
-const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || 3000
-const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
-const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
-const typesensePath = process.env.GATSBY_TYPESENSE_PATH || process.env.npm_config_typesensepath || "/"
-const typesenseProtocol = typesensePort === "443" ? "https" : "http"
+// typesense nodes
+const typesenseNodes = misc.getNodes(process.env.GATSBY_TYPESENSE_HOST, process.env.GATSBY_TYPESENSE_PORT, process.env.GATSBY_TYPESENSE_PATH)
 const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_key || "xyz"
 
-const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisensepath || "/"
+// for this process only
+const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || "3000"
+const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisense_path || "/"
+const thaisenseNodeNum = process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
+
+// const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
+// const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
+// const typesensePath = process.env.GATSBY_TYPESENSE_PATH || process.env.npm_config_typesensepath || "/"
+// const typesenseProtocol = typesensePort === "443" ? "https" : "http"
 
 function removeSpaces(str) {
 	if (str)
@@ -78,7 +84,8 @@ app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res
 	// there's a bug with typesense? year<=x returns everything
 	req.body.searches[0].filter_by = req.body.searches[0].filter_by.replace(/((?: |^)year:<)=/gm, '$1')
 	console.log("reqest > ", req.body);
-	fetch(`${typesenseProtocol}://${typesenseHost}:${typesensePort}${typesensePath === "/" ? "" : typesensePath}/multi_search?x-typesense-api-key=${key}`, {
+	const targetNum = thaisenseNodeNum
+	fetch(`${typesenseNodes[targetNum].protocol}://${typesenseNodes[targetNum].host}:${typesenseNodes[targetNum].port}${typesenseNodes[targetNum].path === "/" ? "" : typesenseNodes[targetNum].path}/multi_search?x-typesense-api-key=${key}`, {
 	  method: 'post',
 	  headers: {
 	    'Accept': 'application/json, text/plain, */*',
@@ -89,8 +96,8 @@ app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res
 	  // .then(res => console.log(res));
 	}).then(newres => newres.json())
 		.then(newres => {
-			// console.log("return > ", newres)
-			console.log("return > ", newres.results[0].hits)
+			console.log("return > ", newres)
+			// console.log("return > ", newres.results[0].hits)
 			newres.results.map(result => {
 				if (result.code === 400) {
 					res.statusMessage = result.error
@@ -106,6 +113,7 @@ app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res
 
 app.listen(port, () => {
   console.log(`Thaisense listening at ${port}`)
-  console.log(`Relaying requests to ${typesenseProtocol}://${typesenseHost}:${typesensePort}${typesensePath === "/" ? "" : typesensePath}`)
+	console.log(typesenseNodes[thaisenseNodeNum])
+	// console.log(`Relaying requests to ${typesenseNodes[targetNum].protocol}://${typesenseNodes[targetNum].host}:${typesenseNodes[targetNum].port}${typesenseNodes[targetNum].path === "/" ? "" : typesenseNodes[targetNum].path}`)
   console.log(`Read-only key: ${key}`)
 })
