@@ -17,7 +17,7 @@ const key = process.env.GATSBY_TYPESENSE_SEARCH_KEY || process.env.npm_config_ke
 // for this process only
 const port = process.env.PORT || process.env.GATSBY_THAISENSE_PORT || process.env.npm_config_port || "3000"
 const thaisensePath = process.env.GATSBY_THAISENSE_PATH || process.env.npm_config_thaisense_path || "/"
-const thaisenseNodeNum = process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
+const thaisenseNodeNum = process.argv[2] || process.env.GATSBY_THAISENSE_NODE_NUM || process.env.npm_config_thaisense_node_num || "0"
 
 // const typesenseHost = process.env.GATSBY_TYPESENSE_HOST || process.env.npm_config_typesensehost || process.env.npm_config_host || "localhost"
 // const typesensePort = process.env.GATSBY_TYPESENSE_PORT || process.env.npm_config_typesenseport || 8108
@@ -84,8 +84,8 @@ app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res
 	// there's a bug with typesense? year<=x returns everything
 	req.body.searches[0].filter_by = req.body.searches[0].filter_by.replace(/((?: |^)year:<)=/gm, '$1')
 	console.log("reqest > ", req.body);
-	const targetNum = thaisenseNodeNum
-	fetch(`${typesenseNodes[targetNum].protocol}://${typesenseNodes[targetNum].host}:${typesenseNodes[targetNum].port}${typesenseNodes[targetNum].path === "/" ? "" : typesenseNodes[targetNum].path}/multi_search?x-typesense-api-key=${key}`, {
+	const targetNode = typesenseNodes[thaisenseNodeNum]
+	fetch(`${targetNode.protocol}://${targetNode.host}:${targetNode.port}${targetNode.path === "/" ? "" : targetNode.path}/multi_search?x-typesense-api-key=${key}`, {
 	  method: 'post',
 	  headers: {
 	    'Accept': 'application/json, text/plain, */*',
@@ -113,7 +113,7 @@ app.post(`${thaisensePath === "/" ? "" : thaisensePath}/multi_search`, (req, res
 
 app.listen(port, () => {
   console.log(`Thaisense listening at ${port}`)
-	console.log(typesenseNodes[thaisenseNodeNum])
-	// console.log(`Relaying requests to ${typesenseNodes[targetNum].protocol}://${typesenseNodes[targetNum].host}:${typesenseNodes[targetNum].port}${typesenseNodes[targetNum].path === "/" ? "" : typesenseNodes[targetNum].path}`)
+	const targetNode = typesenseNodes[thaisenseNodeNum]
+	console.log(`Relaying requests to ${targetNode.protocol}://${targetNode.host}:${targetNode.port}${targetNode.path === "/" ? "" : targetNode.path}`)
   console.log(`Read-only key: ${key}`)
 })
