@@ -188,30 +188,9 @@ exports.goIndex = async (
 
   for (const file of htmlFiles) {
     
-    // BOT debug
-    reporter.verbose(`---------`)
-    reporter.verbose(`Way I`)
-    reporter.verbose(`file: ${file}`)
-    reporter.verbose(`rootDir: ${rootDir}`)
-    reporter.verbose(`Replaced 1: ${file.replace(rootDir, "")}`)
-    reporter.verbose(`Take out index.html: ${file.replace(rootDir, "").replace(/index\.html$/, "")}`)
-
-    reporter.verbose(`Way II`)
     const fwdFile = file.replace(/\\/g, '/')
     const fwdRootDir = rootDir.replace(/\\/g, '/')
-    reporter.verbose(`file: ${fwdFile}`)
-    reporter.verbose(`rootDir: ${fwdRootDir}`)
-    reporter.verbose(`Replaced 2: ${fwdFile.replace(fwdRootDir, "")}`)
-    reporter.verbose(`Take out index.html: ${fwdFile.replace(fwdRootDir, "").replace(/index\.html$/, "")}`)
-
-    reporter.verbose(`Way III`)
-    reporter.verbose(`Replaced 3: ${file.slice(rootDir.length)}`)
-    reporter.verbose(`Take out index.html: ${file.slice(rootDir.length).replace(/index\.html$/, "")}`)
-    reporter.verbose(`---------`)
-
-    // const wwwPath = file.replace(rootDir, "").replace(/index\.html$/, "")
     const wwwPath = fwdFile.replace(fwdRootDir, "").replace(/index\.html$/, "")
-    // const wwwPath = file.slice(rootDir.length).replace(/index\.html$/, "")
     reporter.verbose(`[Typesense] Indexing ${wwwPath}`)
     const fileContents = (await fs.readFile(file)).toString()
     await indexContentInTypesense({
